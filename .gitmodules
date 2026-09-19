@@ -1,0 +1,4 @@
+[submodule "uiua"]
+	path = uiua
+	url = https://github.com/Nxllpointer/uiua
+	branch = lliua-patches

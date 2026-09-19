@@ -1,0 +1,14 @@
+[package]
+name = "lliua"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+inkwell = { version = "0.10.0", features = ["llvm22-1"] }
+uiua = { path = "./uiua", default-features = false, features = [] }
+
+[profile.dev]
+opt-level = 0
+lto = "off"
+incremental = true
+
