@@ -23,6 +23,7 @@
         } {
           packages = with pkgs; [
               (rust-bin.stable.latest.complete)
+              cargo-expand
               llvm_22.dev
             ];
           nativeBuildInputs = with pkgs; [

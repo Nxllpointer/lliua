@@ -1,0 +1,8 @@
+[package]
+name = "typedwell"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+inkwell.workspace = true
+impl-trait-for-tuples.workspace = true

@@ -1,11 +1,24 @@
+[workspace]
+members = ["typedwell"]
+exclude = ["uiua"]
+
+[workspace.dependencies]
+inkwell = { version = "0.10.0", features = ["llvm22-1"] }
+itertools = "0.15.0"
+pastey = "0.2.3"
+impl-trait-for-tuples = "0.2.3"
+uiua = { path = "./uiua", default-features = false, features = [] }
+
 [package]
 name = "lliua"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-inkwell = { version = "0.10.0", features = ["llvm22-1"] }
-uiua = { path = "./uiua", default-features = false, features = [] }
+inkwell.workspace = true
+uiua.workspace = true
+pastey.workspace = true
+itertools.workspace = true
 
 [profile.dev]
 opt-level = 0
