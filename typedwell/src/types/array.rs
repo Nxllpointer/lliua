@@ -3,7 +3,7 @@ use inkwell::types::BasicType;
 crate::create_wrapper! {
     #[derive(Clone, Copy)]
     pub struct ArrayType[T][T] => inkwell::types::ArrayType<'ctx> {
-        element_ty: T
+        pub(crate) element_ty: T
     }
 }
 

@@ -36,6 +36,18 @@ impl<'ctx, T: crate::AnyType<'ctx>> PointerType<'ctx, T> {
     }
 }
 
+impl<'ctx, T: crate::BasicType<'ctx>>
+    crate::Value<'ctx, PointerType<'ctx, crate::ArrayType<'ctx, T>>>
+{
+    pub fn decay_array(&self) -> crate::Value<'ctx, PointerType<'ctx, T>> {
+        crate::Value {
+            original: self.original,
+            ctx: self.get_context(),
+            ty: self.ty.pointee_ty.element_ty.ptr_type(),
+        }
+    }
+}
+
 impl<'ctx, F> crate::BasicBlock<'ctx, F> {
     pub fn build_load<T: crate::BasicType<'ctx>>(
         &self,
