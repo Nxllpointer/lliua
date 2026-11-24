@@ -18,23 +18,30 @@ impl Context {
         }
     }
 
-    // pub fn create_builder(&self) -> crate::Builder<'_> {
-    //     crate::Builder {
-    //         original: self.get_original().create_builder(),
-    //         ctx: self,
-    //     }
-    // }
-
-    pub fn u32_type(&self) -> crate::IntType<'_, 32, false> {
+    pub fn u32_type(&self) -> crate::U32Type<'_> {
         crate::IntType {
             original: self.get_original().i32_type(),
             ctx: self,
         }
     }
 
-    pub fn i32_type(&self) -> crate::IntType<'_, 32, true> {
+    pub fn i32_type(&self) -> crate::I32Type<'_> {
         crate::IntType {
             original: self.get_original().i32_type(),
+            ctx: self,
+        }
+    }
+
+    pub fn f32_type(&self) -> crate::F32Type<'_> {
+        crate::FloatType {
+            original: self.get_original().f32_type(),
+            ctx: self,
+        }
+    }
+
+    pub fn f64_type(&self) -> crate::F64Type<'_> {
+        crate::FloatType {
+            original: self.get_original().f64_type(),
             ctx: self,
         }
     }
