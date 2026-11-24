@@ -37,15 +37,11 @@ impl<'ctx, T: crate::AnyType<'ctx>> PointerType<'ctx, T> {
 }
 
 impl<'ctx, F> crate::BasicBlock<'ctx, F> {
-    pub fn build_load<T>(
+    pub fn build_load<T: crate::BasicType<'ctx>>(
         &self,
-        ptr: crate::Value<'ctx, PointerType<T>>,
+        ptr: &crate::Value<'ctx, PointerType<T>>,
         name: &str,
-    ) -> crate::Value<'ctx, T>
-    where
-        T: crate::AnyType<'ctx>,
-        T::Original: inkwell::types::BasicType<'ctx>,
-    {
+    ) -> crate::Value<'ctx, T> {
         let loaded_value = self
             .builder
             .build_load(
@@ -59,5 +55,18 @@ impl<'ctx, F> crate::BasicBlock<'ctx, F> {
             ctx: self.get_context(),
             ty: ptr.ty.pointee_ty,
         }
+    }
+
+    pub fn build_store<T: crate::BasicType<'ctx>>(
+        &self,
+        ptr: &crate::Value<'ctx, PointerType<T>>,
+        value: &crate::Value<'ctx, T>,
+    ) {
+        self.builder
+            .build_store(
+                ptr.get_original().into_pointer_value(),
+                inkwell::values::BasicValueEnum::try_from(*value.get_original()).unwrap(),
+            )
+            .unwrap();
     }
 }
