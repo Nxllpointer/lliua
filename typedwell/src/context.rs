@@ -32,6 +32,20 @@ impl Context {
         }
     }
 
+    pub fn u8_type(&self) -> crate::U8Type<'_> {
+        crate::IntType {
+            original: self.get_original().i8_type(),
+            ctx: self,
+        }
+    }
+
+    pub fn i8_type(&self) -> crate::I8Type<'_> {
+        crate::IntType {
+            original: self.get_original().i8_type(),
+            ctx: self,
+        }
+    }
+
     pub fn f32_type(&self) -> crate::F32Type<'_> {
         crate::FloatType {
             original: self.get_original().f32_type(),

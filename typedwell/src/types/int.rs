@@ -6,6 +6,8 @@ pub type U64Type<'ctx> = IntType<'ctx, 64, false>;
 pub type I64Type<'ctx> = IntType<'ctx, 64, true>;
 pub type U32Type<'ctx> = IntType<'ctx, 32, false>;
 pub type I32Type<'ctx> = IntType<'ctx, 32, true>;
+pub type U8Type<'ctx> = IntType<'ctx, 8, false>;
+pub type I8Type<'ctx> = IntType<'ctx, 8, true>;
 
 crate::create_wrapper! {
     #[derive(Clone, Copy)]
