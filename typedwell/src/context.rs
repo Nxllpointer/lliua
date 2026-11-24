@@ -1,4 +1,6 @@
-use crate::Wrapper;
+use inkwell::values::AnyValue;
+
+use crate::{AsArrayType, Wrapper};
 
 pub struct Context {
     pub(crate) original: inkwell::context::Context,
@@ -57,6 +59,19 @@ impl Context {
         crate::FloatType {
             original: self.get_original().f64_type(),
             ctx: self,
+        }
+    }
+
+    pub fn const_string(&self, content: &[u8]) -> crate::Value<'_, crate::StringType<'_>> {
+        let ty = self.u8_type().array_type(content.len() as u32);
+
+        crate::Value {
+            original: self
+                .get_original()
+                .const_string(content, false)
+                .as_any_value_enum(),
+            ctx: &self,
+            ty,
         }
     }
 }

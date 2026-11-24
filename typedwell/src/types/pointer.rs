@@ -9,11 +9,11 @@ crate::create_wrapper! {
     }
 }
 
-pub trait AsPointerType<'ctx, T> {
-    fn ptr_type(&self) -> PointerType<'ctx, T>;
+pub trait AsPointerType<'ctx>: Sized {
+    fn ptr_type(&self) -> PointerType<'ctx, Self>;
 }
 
-impl<'ctx, T: crate::BasicType<'ctx>> AsPointerType<'ctx, T> for T {
+impl<'ctx, T: crate::BasicType<'ctx>> AsPointerType<'ctx> for T {
     fn ptr_type(&self) -> PointerType<'ctx, T> {
         PointerType {
             original: self
