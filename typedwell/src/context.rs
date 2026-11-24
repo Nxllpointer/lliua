@@ -62,7 +62,10 @@ impl Context {
         }
     }
 
-    pub fn const_string(&self, content: &[u8]) -> crate::Value<'_, crate::StringType<'_>> {
+    pub fn const_string(
+        &self,
+        content: &[u8],
+    ) -> crate::Value<'_, crate::ArrayType<'_, crate::U8Type<'_>>> {
         let ty = self.u8_type().array_type(content.len() as u32);
 
         crate::Value {

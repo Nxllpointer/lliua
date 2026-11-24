@@ -1,8 +1,4 @@
-use inkwell::{types::BasicType, values::AnyValue};
-
-use crate::{HasContext, Wrapper};
-
-pub type StringType<'ctx> = ArrayType<'ctx, crate::U8Type<'ctx>>;
+use inkwell::types::BasicType;
 
 crate::create_wrapper! {
     #[derive(Clone, Copy)]
