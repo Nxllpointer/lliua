@@ -27,3 +27,9 @@ impl<'ctx> Module<'ctx> {
         }
     }
 }
+
+impl<'ctx> ToString for Module<'ctx> {
+    fn to_string(&self) -> String {
+        self.get_original().to_string()
+    }
+}
