@@ -108,7 +108,7 @@ impl<'ctx, A: args::FunctionArgs<'ctx>, R: crate::BasicType<'ctx>>
 impl<'ctx, F> crate::BasicBlock<'ctx, F> {
     pub fn build_call<P, R>(
         &self,
-        function: crate::Value<'ctx, crate::FunctionType<'ctx, P, R>>,
+        function: &crate::Value<'ctx, crate::FunctionType<'ctx, P, R>>,
         args: &P::CallValues,
         name: &str,
     ) -> crate::Value<'ctx, CallSiteType<'ctx, R>>
