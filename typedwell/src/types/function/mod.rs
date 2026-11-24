@@ -116,11 +116,33 @@ impl<'ctx, F> crate::BasicBlock<'ctx, F> {
         P: args::FunctionArgs<'ctx>,
         R: crate::AnyType<'ctx>,
     {
+        self.build_variadic_call(function, args, &[], name)
+    }
+
+    pub fn build_variadic_call<P, R>(
+        &self,
+        function: &crate::Value<'ctx, crate::FunctionType<'ctx, P, R>>,
+        args: &P::CallValues,
+        varargs: &[&crate::Value<'ctx, crate::BasicTypeEnum<'ctx>>],
+        name: &str,
+    ) -> crate::Value<'ctx, CallSiteType<'ctx, R>>
+    where
+        P: args::FunctionArgs<'ctx>,
+        R: crate::AnyType<'ctx>,
+    {
+        let combined_args: Vec<inkwell::values::BasicMetadataValueEnum> = std::iter::chain(
+            P::call_values(args).borrow().iter().copied(),
+            varargs.iter().map(|arg| {
+                inkwell::values::BasicMetadataValueEnum::try_from(arg.original).unwrap()
+            }),
+        )
+        .collect();
+
         let original = self
             .builder
             .build_call(
                 function.get_original().into_function_value(),
-                P::call_values(args).borrow(),
+                &combined_args,
                 name,
             )
             .unwrap();
