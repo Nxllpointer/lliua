@@ -2,14 +2,14 @@ mod basic_block;
 mod context;
 mod module;
 mod types;
-mod values;
+mod value;
 mod wrapper;
 
 pub use basic_block::*;
 pub use context::*;
 pub use module::*;
 pub use types::*;
-pub use values::*;
+pub use value::*;
 
 pub(crate) use wrapper::*;
 

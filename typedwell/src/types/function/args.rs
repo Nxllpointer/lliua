@@ -24,8 +24,8 @@ pub trait FunctionArgs<'ctx>: Copy {
 }
 
 impl<'ctx, T: crate::BasicType<'ctx>> FunctionArgs<'ctx> for &[T] {
-    type CallValues = [crate::values::Value<'ctx, T>];
-    type BodyValues = Vec<crate::values::Value<'ctx, T>>;
+    type CallValues = [crate::value::Value<'ctx, T>];
+    type BodyValues = Vec<crate::value::Value<'ctx, T>>;
 
     fn arg_types(&self) -> impl Borrow<[inkwell::types::BasicMetadataTypeEnum<'ctx>]> {
         self.into_iter()
@@ -78,8 +78,8 @@ impl<'ctx, T: crate::BasicType<'ctx>> FunctionArgs<'ctx> for &[T] {
 impl<'ctx> FunctionArgs<'ctx> for Tuple {
     for_tuples!( where #( Tuple: crate::BasicType<'ctx> ),* );
 
-    for_tuples!( type CallValues = (#( crate::values::Value<'ctx, Tuple> ),*); );
-    for_tuples!( type BodyValues = (#( crate::values::Value<'ctx, Tuple> ),*); );
+    for_tuples!( type CallValues = (#( crate::value::Value<'ctx, Tuple> ),*); );
+    for_tuples!( type BodyValues = (#( crate::value::Value<'ctx, Tuple> ),*); );
 
     fn arg_types(&self) -> impl Borrow<[inkwell::types::BasicMetadataTypeEnum<'ctx>]> {
         [for_tuples!(#(
