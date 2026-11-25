@@ -12,7 +12,7 @@ crate::create_wrapper! {
 impl<'ctx, F> BasicBlock<'ctx, F> {
     pub fn build_alloca<T: crate::BasicType<'ctx>>(
         &self,
-        ty: &T,
+        ty: T,
         name: &str,
     ) -> crate::Value<'ctx, crate::PointerType<'ctx, T>> {
         crate::Value {
