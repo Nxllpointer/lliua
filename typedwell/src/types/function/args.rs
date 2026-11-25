@@ -43,7 +43,7 @@ impl<'ctx, T: crate::BasicType<'ctx>> FunctionArgs<'ctx> for &[T] {
                     .get_original()
                     .as_any_value_enum()
                     .try_into()
-                    .expect("Value was not properly restricted by trait bounds")
+                    .expect("Value was not properly restricted by trait bounds")
             })
             .collect::<Vec<_>>()
     }

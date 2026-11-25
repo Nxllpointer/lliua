@@ -332,6 +332,7 @@ dependencies = [
  "inkwell",
  "itertools",
  "pastey",
+ "typedwell",
  "uiua",
 ]
 

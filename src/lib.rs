@@ -1,129 +1,72 @@
-mod stack;
+use tw::{AsFunctionType, AsPointerType};
 
-struct LliuaBackend<'a, 'ctx> {
-    ctx: inkwell::context::ContextRef<'ctx>,
-    module: &'a inkwell::module::Module<'ctx>,
-    types: Types<'ctx>,
-    rand_global: inkwell::values::GlobalValue<'ctx>,
+mod types;
+
+pub fn compile() {
+    Lliua::with_new(|lliua| {
+        let main = lliua.module.add_function(
+            "main",
+            lliua.ctx.i32_type().function_type((), false),
+            Some(tw::Linkage::External),
+        );
+
+        let entry = main.append_basic_block("entry");
+        lliua.build_call_printf(
+            &entry,
+            "Hello world %d",
+            &[lliua.ctx.u32_type().const_uint(123).into_basic_value_enum()],
+        );
+        entry.build_return(Some(lliua.ctx.i32_type().const_sint(456)));
+
+        println!("{}", lliua.module.to_string());
+    });
 }
 
-struct Types<'ctx> {
-    real: inkwell::types::FloatType<'ctx>,
+pub struct Lliua<'ctx> {
+    ctx: &'ctx tw::Context,
+    module: tw::Module<'ctx>,
+    types: crate::types::Types<'ctx>,
+    printf: tw::Value<
+        'ctx,
+        tw::FunctionType<'ctx, (tw::PointerType<'ctx, tw::U8Type<'ctx>>,), tw::I32Type<'ctx>>,
+    >,
 }
 
-pub fn transform(uasm: uiua::Assembly) {
-    let ctx = inkwell::context::Context::create();
-    let module = ctx.create_module("uiua");
+impl Lliua<'_> {
+    fn with_new<R>(block: impl FnOnce(&mut Lliua) -> R) -> R {
+        let ctx = tw::Context::new();
+        let module = ctx.create_module("lliua_program");
+        let types = crate::types::Types::new(&ctx);
 
-    let types = Types {
-        real: ctx.f64_type(),
-    };
+        let printf = module.add_function(
+            "printf",
+            ctx.i32_type()
+                .function_type((ctx.u8_type().ptr_type(),), true),
+            Some(tw::Linkage::External),
+        );
 
-    let rand_global = module.add_global(types.real, None, "rand");
-    rand_global.set_initializer(&ctx.f64_type().const_float(0.5));
+        let mut lliua = Lliua {
+            ctx: &ctx,
+            module,
+            types,
+            printf,
+        };
 
-    let lliua_backend = LliuaBackend {
-        ctx: module.get_context(),
-        module: &module,
-        types,
-        rand_global,
-    };
-
-    lliua_backend.entrypoint(uasm.root);
-
-    lliua_backend.module.print_to_stderr();
-    lliua_backend.module.print_to_file("uiua-test.ll").unwrap();
-
-    lliua_backend
-        .module
-        .verify()
-        .expect("Module verification failed");
-
-    let output = unsafe {
-        lliua_backend
-            .module
-            .create_execution_engine()
-            .unwrap()
-            .run_function(module.get_first_function().unwrap(), &[])
-            .as_float(&ctx.f64_type())
-    };
-
-    println!("Uiua computed: {output}")
-}
-
-impl<'ctx> LliuaBackend<'_, 'ctx> {
-    fn entrypoint(&self, root_node: uiua::Node) -> inkwell::values::FunctionValue<'ctx> {
-        let mut stack = crate::stack::Stack::create(&self.module);
-
-        let main_fn =
-            self.module
-                .add_function("uiua_main", self.types.real.fn_type(&[], false), None);
-
-        let entry = self.ctx.append_basic_block(main_fn, "entry");
-        let builder = self.ctx.create_builder();
-        builder.position_at_end(entry);
-
-        for node in root_node {
-            match node {
-                uiua::Node::Push(value, _) => self.op_push(&mut stack, value),
-                uiua::Node::Prim(uiua::Primitive::Rand, _) => self.op_random(&mut stack, &builder),
-                uiua::Node::Prim(uiua::Primitive::Mul, _) => self.op_mul(&mut stack, &builder),
-                uiua::Node::Prim(uiua::Primitive::Sub, _) => self.op_sub(&mut stack, &builder),
-                _ => todo!("Node not implemented: {node:?}"),
-            }
-        }
-
-        builder
-            .build_return(Some(&stack.vstack.pop().unwrap()))
-            .unwrap();
-
-        return main_fn;
+        block(&mut lliua)
     }
+}
 
-    fn op_random(
+impl<'ctx> Lliua<'ctx> {
+    fn build_call_printf<F>(
         &self,
-        stack: &mut crate::stack::Stack<'ctx>,
-        b: &inkwell::builder::Builder<'ctx>,
+        bb: &tw::BasicBlock<'ctx, F>,
+        format: &str,
+        values: &[tw::Value<'ctx, tw::BasicTypeEnum<'ctx>>],
     ) {
-        let rand_float = b
-            .build_load(self.types.real, self.rand_global.as_pointer_value(), "")
-            .unwrap()
-            .into_float_value();
+        let format_string = self.ctx.const_string(format!("{format}\0").as_bytes());
+        let format_str_ptr = bb.build_alloca(*format_string.get_type(), "format_str");
+        bb.build_store(format_str_ptr, format_string);
 
-        stack.vstack.push(rand_float);
+        bb.build_variadic_call(self.printf, &(format_str_ptr.decay_array(),), values, "");
     }
-
-    fn op_push(&self, stack: &mut crate::stack::Stack<'ctx>, value: uiua::Value) {
-        stack
-            .vstack
-            .push(self.ctx.f64_type().const_float(value_to_float(value)));
-    }
-
-    fn op_mul(&self, stack: &mut crate::stack::Stack<'ctx>, b: &inkwell::builder::Builder<'ctx>) {
-        let o1 = stack.vstack.pop().expect("Empty stack");
-        let o2 = stack.vstack.pop().expect("Empty stack");
-
-        stack
-            .vstack
-            .push(b.build_float_mul(o2, o1, "").expect("Cant mul"));
-    }
-
-    fn op_sub(&self, stack: &mut crate::stack::Stack<'ctx>, b: &inkwell::builder::Builder<'ctx>) {
-        let o1 = stack.vstack.pop().expect("Empty stack");
-        let o2 = stack.vstack.pop().expect("Empty stack");
-
-        stack
-            .vstack
-            .push(b.build_float_sub(o2, o1, "").expect("Cant sub"));
-    }
-}
-
-fn value_to_float(value: uiua::Value) -> f64 {
-    match value {
-        uiua::Value::Byte(array) => array.convert(),
-        uiua::Value::Num(array) => array,
-        _ => todo!("Only real numbers supported for now"),
-    }
-    .into_scalar()
-    .expect("Only scalars supported for now")
 }
