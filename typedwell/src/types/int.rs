@@ -43,8 +43,8 @@ impl<'ctx, const BITS: usize> IntType<'ctx, BITS, true> {
 impl<'ctx, F> crate::BasicBlock<'ctx, F> {
     pub fn build_int_mul<const BITS: usize, const SIGNED: bool>(
         &self,
-        lhs: &crate::Value<'ctx, IntType<'ctx, BITS, SIGNED>>,
-        rhs: &crate::Value<'ctx, IntType<'ctx, BITS, SIGNED>>,
+        lhs: crate::Value<'ctx, IntType<'ctx, BITS, SIGNED>>,
+        rhs: crate::Value<'ctx, IntType<'ctx, BITS, SIGNED>>,
         name: &str,
     ) -> crate::Value<'ctx, IntType<'ctx, BITS, SIGNED>> {
         crate::Value {

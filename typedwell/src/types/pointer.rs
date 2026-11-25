@@ -51,7 +51,7 @@ impl<'ctx, T: crate::BasicType<'ctx>>
 impl<'ctx, F> crate::BasicBlock<'ctx, F> {
     pub fn build_load<T: crate::BasicType<'ctx>>(
         &self,
-        ptr: &crate::Value<'ctx, PointerType<T>>,
+        ptr: crate::Value<'ctx, PointerType<T>>,
         name: &str,
     ) -> crate::Value<'ctx, T> {
         let loaded_value = self
@@ -71,8 +71,8 @@ impl<'ctx, F> crate::BasicBlock<'ctx, F> {
 
     pub fn build_store<T: crate::BasicType<'ctx>>(
         &self,
-        ptr: &crate::Value<'ctx, PointerType<T>>,
-        value: &crate::Value<'ctx, T>,
+        ptr: crate::Value<'ctx, PointerType<T>>,
+        value: crate::Value<'ctx, T>,
     ) {
         self.builder
             .build_store(

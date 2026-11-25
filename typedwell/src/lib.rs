@@ -32,7 +32,7 @@ mod test {
         let (_, _, ptr_arg) = main_function.get_args();
         let entry = main_function.append_basic_block("entry");
         entry.build_call(
-            &main_function,
+            main_function,
             &(
                 ctx.i32_type().const_sint(123),
                 ctx.u32_type().const_uint(456),
@@ -40,8 +40,8 @@ mod test {
             ),
             "call_result",
         );
-        let loaded_ptr = entry.build_load(&ptr_arg, "loaded_ptr");
-        entry.build_return(Some(&loaded_ptr));
+        let loaded_ptr = entry.build_load(ptr_arg, "loaded_ptr");
+        entry.build_return(Some(loaded_ptr));
 
         module.original.print_to_stderr();
     }

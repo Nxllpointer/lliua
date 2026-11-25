@@ -1,4 +1,5 @@
 crate::create_wrapper! {
+    #[derive(Clone, Copy)]
     pub struct Value[T][T] => inkwell::values::AnyValueEnum<'ctx> {
         pub(crate) ty: T
     }
