@@ -26,10 +26,7 @@ pub struct Lliua<'ctx> {
     ctx: &'ctx tw::Context,
     module: tw::Module<'ctx>,
     types: crate::types::Types<'ctx>,
-    printf: tw::Value<
-        'ctx,
-        tw::FunctionType<'ctx, (tw::PointerType<'ctx, tw::U8Type<'ctx>>,), tw::I32Type<'ctx>>,
-    >,
+    printf: tw::Value<'ctx, crate::types::PrintfType<'ctx>>,
 }
 
 impl Lliua<'_> {
